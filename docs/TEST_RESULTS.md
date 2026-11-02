@@ -14,7 +14,7 @@ Recorded on 2026-11-02 in the build environment described in [ENVIRONMENT_AUDIT.
 | Browser visual QA (`frontend/e2e/visual-qa.mjs`, Playwright/Chromium) | ✅ **17/17 checks** in production mode and in demo mode |
 | Python dependency audit (`pip-audit`) | ✅ no known vulnerabilities, after upgrading FastAPI 0.162, Starlette 1.10 and cryptography 50.0.2 |
 | npm audit (all deps) | ✅ 0 vulnerabilities, after upgrading to React Router 7.18.5, Vite 8.3.5, Vitest 5.0.5 and postcss 8.5.32, and overriding minimatch to 11.0.4 |
-| Docker image build | ⏭️ not run locally (no Docker daemon in the sandbox); built and smoke-tested in CI |
+| Docker image build + container smoke test | ✅ GitHub Actions: image builds, runs as non-root, `/healthz`, `/api/v1/meta` and the UI respond |
 
 ## Backend coverage by area
 
@@ -73,6 +73,7 @@ Screenshots: [`docs/screenshots/`](screenshots/).
 2. **Indexer startup race.** The newest segment could be finalised at 0.5 s before the worker reported "recording", and it was never revisited. That broke transcript-to-recording links. The indexer is now self-healing: it looks at mtime and re-examines any file whose size changes. A regression test covers this.
 3. **Vulnerable dependency pins** were upgraded (see Summary).
 4. Demo mode ignored disabled categories. It now respects thresholds.
+5. **Docker container failed to start** (first CI run): the `/data` volume was root-owned while the app runs as UID 10001. The directory is now created with the right owner in the image.
 
 ## Not tested (and why)
 
@@ -83,5 +84,4 @@ Screenshots: [`docs/screenshots/`](screenshots/).
 | Ollama summaries against a real model | Ollama not available | Mocked HTTP API test, including injection guards |
 | Non-English and overlapping speech | Needs real STT | Whisper is multilingual; language auto-detect is enabled by default |
 | Disk-full behaviour on a real full disk | Not safe to fill the sandbox disk | Logic covered by the disk guard (`min_free_gb`); the threshold can be raised to trigger it |
-| Docker image | No daemon | CI job builds and smoke-tests the image |
 | Safari / Firefox | Only Chromium available | Standard Web Audio, MP3 and WebSocket APIs only |
