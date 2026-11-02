@@ -1,0 +1,35 @@
+[Unit]
+Description=EchoSentinel audio surveillance server
+Documentation=https://github.com/OneByJorah/echosentinel
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=echosentinel
+Group=echosentinel
+EnvironmentFile=/etc/echosentinel/echosentinel.env
+WorkingDirectory=/var/lib/echosentinel
+ExecStart=/opt/echosentinel/venv/bin/echosentinel serve
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=30
+# Hardening
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/echosentinel
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+RestrictNamespaces=true
+LockPersonality=true
+MemoryDenyWriteExecute=false
+SystemCallArchitectures=native
+CapabilityBoundingSet=
+UMask=0027
+
+[Install]
+WantedBy=multi-user.target

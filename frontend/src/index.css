@@ -1,0 +1,100 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: dark;
+  }
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+  body {
+    @apply bg-ink text-bone font-sans antialiased;
+    font-feature-settings: 'cv11', 'ss01';
+    background-image: radial-gradient(1200px 600px at 70% -10%, rgba(255, 179, 0, 0.05), transparent 60%);
+    background-attachment: fixed;
+  }
+  :focus-visible {
+    outline: 2px solid #ffb300;
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+  ::selection {
+    background: rgba(255, 179, 0, 0.35);
+  }
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: #3a3b35 transparent;
+  }
+  input,
+  select,
+  textarea {
+    color-scheme: dark;
+  }
+}
+
+@layer components {
+  .panel {
+    @apply rounded-xl border border-ink-600 bg-ink-800/90 shadow-panel;
+  }
+  .panel-inset {
+    @apply rounded-lg border border-ink-600 bg-ink-850;
+  }
+  .num {
+    @apply font-mono tabular-nums;
+  }
+  .btn {
+    @apply inline-flex items-center justify-center gap-1.5 rounded-lg border border-ink-500 bg-ink-750 px-3 py-1.5 text-sm font-medium text-bone transition-colors hover:border-ink-500 hover:bg-ink-700 disabled:cursor-not-allowed disabled:opacity-45;
+  }
+  .btn-primary {
+    @apply border-amber bg-amber text-ink hover:border-amber-soft hover:bg-amber-soft;
+  }
+  .btn-ghost {
+    @apply border-transparent bg-transparent hover:bg-ink-700;
+  }
+  .btn-danger {
+    @apply border-bad/60 text-bad hover:bg-bad/10;
+  }
+  .btn-icon {
+    @apply inline-flex h-9 w-9 items-center justify-center rounded-lg border border-ink-600 bg-ink-750 text-bone-muted transition-colors hover:bg-ink-700 hover:text-bone disabled:cursor-not-allowed disabled:opacity-45;
+  }
+  .input {
+    @apply w-full rounded-lg border border-ink-500 bg-ink-850 px-3 py-2 text-sm text-bone placeholder:text-bone-dim focus:border-amber focus:outline-none disabled:opacity-50;
+  }
+  .label {
+    @apply mb-1 block text-xs font-medium text-bone-muted;
+  }
+  .chip {
+    @apply inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[11px] font-semibold leading-none;
+  }
+  .hatch {
+    background-image: repeating-linear-gradient(135deg, rgba(242, 85, 90, 0.28) 0 4px, transparent 4px 8px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+@keyframes es-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.45;
+  }
+}
+.animate-live {
+  animation: es-pulse 1.6s ease-in-out infinite;
+}

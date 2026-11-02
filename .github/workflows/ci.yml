@@ -1,0 +1,64 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  backend:
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: sudo apt-get update && sudo apt-get install -y ffmpeg
+      - run: pip install -e ".[dev]"
+      - run: ruff check . && ruff format --check .
+      - name: Start real RTSP test server
+        run: ../scripts/test-rtsp-env.sh
+      - name: Tests (unit, API, pipeline, demo, live RTSP integration)
+        env:
+          ES_TEST_RTSP_URL: rtsp://cam:s3cretPass@127.0.0.1:8554/ch1
+        run: pytest -q
+      - name: Dependency audit
+        run: pip-audit --skip-editable --progress-spinner off
+
+  frontend:
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build
+      - run: npm audit --omit=dev --audit-level=high
+
+  docker:
+    runs-on: ubuntu-24.04
+    needs: [backend, frontend]
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build -f deploy/docker/Dockerfile --build-arg EXTRAS=none -t echosentinel:ci .
+      - name: Container smoke test
+        run: |
+          docker run -d --name es -p 127.0.0.1:8640:8640 -e ES_DEMO_MODE=true echosentinel:ci
+          for i in $(seq 1 30); do curl -fsS http://127.0.0.1:8640/healthz && break; sleep 1; done
+          curl -fsS http://127.0.0.1:8640/api/v1/meta | grep -q '"demo_mode":true'
+          curl -fsS http://127.0.0.1:8640/ | grep -qi echosentinel

@@ -1,0 +1,12 @@
+# HTTPS reverse proxy in front of EchoSentinel (loopback backend).
+# Set ES_SECURE_COOKIES=true when using this.
+echosentinel.example.lan {
+	tls internal
+	encode zstd gzip
+	reverse_proxy 127.0.0.1:8640 {
+		header_up X-Forwarded-For {remote_host}
+	}
+	# Restrict to your LAN / tailnet
+	@outside not remote_ip 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16 100.64.0.0/10
+	respond @outside 403
+}

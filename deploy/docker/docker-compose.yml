@@ -1,0 +1,24 @@
+# Optional container deployment. Host install (scripts/install.sh) is the primary path.
+# Usage: cp .env.example .env && edit && docker compose -f deploy/docker/docker-compose.yml up -d --build
+services:
+  echosentinel:
+    build:
+      context: ../..
+      dockerfile: deploy/docker/Dockerfile
+    image: ghcr.io/onebyjorah/echosentinel:latest
+    restart: unless-stopped
+    env_file: ../../.env
+    environment:
+      ES_DATA_DIR: /data
+      ES_HOST: 0.0.0.0
+    volumes:
+      - echosentinel-data:/data
+    # Published on loopback only — front it with HTTPS (deploy/caddy) or Tailscale.
+    ports:
+      - "127.0.0.1:8640:8640"
+    read_only: true
+    tmpfs: [/tmp]
+    security_opt: [no-new-privileges:true]
+    cap_drop: [ALL]
+volumes:
+  echosentinel-data:
