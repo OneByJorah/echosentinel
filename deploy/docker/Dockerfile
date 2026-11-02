@@ -10,7 +10,8 @@ FROM python:3.12.8-slim-bookworm
 ARG EXTRAS=all
 RUN apt-get update && apt-get install -y --no-install-recommends ffmpeg curl tini \
     && rm -rf /var/lib/apt/lists/* \
-    && useradd --system --uid 10001 --home /data echosentinel
+    && useradd --system --uid 10001 --home /data echosentinel \
+    && install -d -o echosentinel -g echosentinel -m 750 /data
 WORKDIR /app
 COPY backend/ /app/backend/
 RUN pip install --no-cache-dir "/app/backend[${EXTRAS}]"
